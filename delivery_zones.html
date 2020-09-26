@@ -1,25 +1,282 @@
-<!DOCTYPE html>
-
+  
 <head>
-    <title>Проверка адреса на попадание в зону доставки</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <!--
-        Укажите свой API-ключ. Тестовый ключ НЕ БУДЕТ работать на других сайтах.
-        Получить ключ можно в Кабинете разработчика: https://developer.tech.yandex.ru/keys/
-    -->
-    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&amp;coordorder=longlat&amp;apikey=a2cb3775-e51d-4992-8d8c-4317efaae0d9" type="text/javascript"></script>
-    <script src="delivery_zones.js" type="text/javascript"></script>
-    <script type="text/javascript" src="https://yandex.st/jquery/2.2.3/jquery.js"></script>
-    <style type="text/css">
-        html, body, #map {
-            width: 100%;
-            height: 100%;
-            padding: 0;
-            margin: 0;
-        }
-    </style>
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=d14ef91a-a8fe-4afe-afd5-c31f8b9c3066&lang=ru_RU" type="text/javascript">
+    </script>
 </head>
 <body>
-<div id="map"></div>
+	<input type="text" name="ym-address" id="ym-address" placeholder="Адрес">
+	<button id="ym-address-calc">Рассчитать</button>
+	<br><br>
+    <div id="map" style="width: 100%; height: 600px"></div>
 </body>
-</html>
+
+<script>
+	var zona1 = {"type":"Polygon","coordinates":[[[37.335273346028906,55.85225184941095],[37.30473906487576,55.807309217287724],[37.31641203850853,55.719041098161895],[37.40944485036822,55.61927366442497],[37.473302882594496,55.596729823688555],[37.590032618922535,55.57611803623217],[37.67998318044618,55.569115333540495],[37.72904310081508,55.58959751819447],[37.792386148910346,55.61952904454584],[37.84268293235786,55.65526131864248],[37.84388456199669,55.69280316562616],[37.84165296409633,55.73224613849262],[37.8447428688815,55.814878606627076],[37.82937917564435,55.83121008676079],[37.780369852524,55.85680476104227],[37.70295057151777,55.892512418395754],[37.645958994369806,55.89694944429918],[37.56081495140122,55.912571435271964],[37.398766611557434,55.88556648529534],[37.335273346028906,55.85225184941095]]]};
+	var zona2 = {"type":"Polygon","coordinates":[[[37.40579871924958,55.677214505917874],[37.49249372337431,55.60942486071238],[37.62497849967795,55.63568897816993],[37.70668931510766,55.66170385685036],[37.779156205359214,55.715438645065724],[37.78018617362087,55.73733283654742],[37.77022981375762,55.7661833257002],[37.74070405692165,55.8099022388611],[37.66860627860138,55.841982981356836],[37.58346223563262,55.86264745231934],[37.480465409460756,55.855503042264665],[37.389141556921714,55.833482239795885],[37.35279376254276,55.79312031633498],[37.356271407616866,55.73606122453634],[37.40579871924958,55.677214505917874]]]};
+  
+  var zona3 = {"type":"Polygon","coordinates":[[[37.65871402644886,55.69997544466667],[37.720683783528905,55.72255655199563],[37.70587798976679,55.7359003768783],[37.706178397176416,55.7442046555676],[37.69991275691762,55.75925920008472],[37.69866821193476,55.76988100168419],[37.681630820272076,55.78088686394441],[37.65716907405644,55.7959271912443],[37.50679370784519,55.810236684850864],[37.447398871419445,55.78016129880763],[37.384570807454736,55.76206615453103],[37.43400928401703,55.68203690276238],[37.48550769710312,55.645552551614294],[37.50777383609987,55.65572281012297],[37.53827937934872,55.65328902690314],[37.5660383405663,55.654737501371606],[37.59713050746689,55.69495833385319],[37.6249825658775,55.70244740635488],[37.65871402644886,55.69997544466667]]]};
+  
+   var zona4 = {"type":"Polygon","coordinates":[[[37.58464214229325,55.76000935452327],[37.566188544270936,55.763566340256496],[37.53331539058436,55.766252011538604],[37.50147220515972,55.75461276086968],[37.437785834310105,55.735004474219195],[37.44413730525731,55.72236277872404],[37.459930151936945,55.69057086176743],[37.48018619441741,55.68126099578363],[37.55400058650726,55.72236277872404],[37.58661624812821,55.737958454107925],[37.600005835530695,55.75296701358875],[37.58464214229325,55.76000935452327]]]};
+   
+    var zona5 = {"type":"Polygon","coordinates":[[[37.571086604879845,55.74909490476485],[37.56971331386423,55.75364519540506],[37.52971621303414,55.74163902126144],[37.52473803310249,55.754613273572886],[37.47804613857124,55.744350417187654],[37.50242205409858,55.712770297885086],[37.543277461813425,55.74062219902031],[37.571086604879845,55.74909490476485]]]};
+	var real_mkad = [];
+	
+
+	zona1.coordinates[0].forEach(function(item, i, arr) {
+	  real_mkad.push([item[1], item[0]]);
+	});
+	zona1.coordinates[0] = real_mkad;
+  
+  real_mkad = [];
+  zona2.coordinates[0].forEach(function(item, i, arr) {
+	  real_mkad.push([item[1], item[0]]);
+	});
+	zona2.coordinates[0] = real_mkad;
+   real_mkad = [];
+  zona3.coordinates[0].forEach(function(item, i, arr) {
+	  real_mkad.push([item[1], item[0]]);
+	});
+	zona3.coordinates[0] = real_mkad;
+  
+  real_mkad = [];
+  zona4.coordinates[0].forEach(function(item, i, arr) {
+	  real_mkad.push([item[1], item[0]]);
+	});
+	zona4.coordinates[0] = real_mkad;
+  
+  real_mkad = [];
+  zona5.coordinates[0].forEach(function(item, i, arr) {
+	  real_mkad.push([item[1], item[0]]);
+	});
+	zona5.coordinates[0] = real_mkad;
+  
+	
+	
+	
+    ymaps.ready(init);
+    function init(){ 
+		// Рублей за км доставки
+		//var rub_km = 49; 
+	  
+		// Инициализируем карту
+        var myPlacemark, myMap = new ymaps.Map("map", {
+            center: [55.76, 37.64],
+            zoom: 9
+        }, {
+            searchControlProvider: 'yandex#search'
+        });
+		
+		// Отмечаем пункт самовывоза
+		/*myMap.geoObjects.add(new ymaps.Placemark([55.752556, 37.770349], {
+            balloonContent: 'г. Москва, 3-й Проезд Перова Поля д.4Ас3<br>Режим работы: Пн-Пт с 10.00 до 18.00, Сб-Вс выходной',
+            iconCaption: 'Пункт самовывоза'
+        }, {
+            preset: 'islands#greenDotIconWithCaption'
+        }));
+		*/
+		// Очерчивем мкад
+		var zona1GeoObject = new ymaps.GeoObject({
+			geometry: zona1,
+			properties:{
+				balloonContent: "<div style=\"margin-bottom: 10px;\"><strong>Стоимость доставки: 500 р.</strong></div>\nм. КУ, Маршала Новикова 1 корпус 3</br>тел: +7(123)456-789</br>Часы работы: с 09-00 до 02-00</br>Служба доставки: +7(123)456-789"
+			}
+		}, {
+			"fill": "#ed4543",
+        "fill-opacity": 0.5,
+        "stroke": "#b3b3b3",
+        "stroke-width": "0",
+        "stroke-opacity": 0
+		});
+		myMap.geoObjects.add(zona1GeoObject);
+		
+		// Очерчивем A107
+		var zona2GeoObject = new ymaps.GeoObject({
+			geometry: zona2,
+			// Описываем свойства геообъекта.
+			properties:{
+				// Содержимое балуна.
+				balloonContent: "<div style=\"margin-bottom: 10px;\"><strong>Стоимость доставки: 200 р.</strong></div>\nм. ГП, Ул. Тисовая, 4</br>тел. +7(123)456-789</br>Часы работы: пн, вт, ср, чт, вс с 09:00 до 00:00 пт и сб с 09:00 до 02:00</br>Служба доставки: +7(123)456-789"
+			}
+		}, {
+			"fill": "#b51eff",
+        "fill-opacity": 0.5,
+        "stroke": "#b3b3b3",
+        "stroke-width": "0",
+        "stroke-opacity": 0
+		});
+		myMap.geoObjects.add(zona2GeoObject);
+    
+    	var zona3GeoObject = new ymaps.GeoObject({
+			geometry: zona3,
+			// Описываем свойства геообъекта.
+			properties:{
+				// Содержимое балуна.
+				balloonContent: "<div style=\"margin-bottom: 10px;\"><strong>Стоимость доставки: 300 р.</strong></div>\nм. ГП, Ул. Тисовая, 4</br>тел. +7(123)456-789</br>Часы работы: пн, вт, ср, чт, вс с 09:00 до 00:00 пт и сб с 09:00 до 02:00</br>Служба доставки: +7(123)456-789"
+			}
+		}, {
+			"fill": "#56db40",
+        "fill-opacity": 0.5,
+        "stroke": "#b3b3b3",
+        "stroke-width": "0",
+        "stroke-opacity": 0
+		});
+		myMap.geoObjects.add(zona3GeoObject);
+    
+    	var zona4GeoObject = new ymaps.GeoObject({
+			geometry: zona4,
+			// Описываем свойства геообъекта.
+			properties:{
+				// Содержимое балуна.
+				balloonContent: "<div style=\"margin-bottom: 10px;\"><strong>Стоимость доставки: 300 р.</strong></div>\nм. ГП, Ул. Тисовая, 4</br>тел. +7(123)456-789</br>Часы работы: пн, вт, ср, чт, вс с 09:00 до 00:00 пт и сб с 09:00 до 02:00</br>Служба доставки: +7(123)456-789"
+			}
+		}, {
+		 "fill": "#ffd21e",
+        "fill-opacity": 0.5,
+        "stroke": "#b3b3b3",
+        "stroke-width": "0",
+        "stroke-opacity": 0
+		});
+		myMap.geoObjects.add(zona4GeoObject);
+    
+    	var zona5GeoObject = new ymaps.GeoObject({
+			geometry: zona5,
+			// Описываем свойства геообъекта.
+			properties:{
+				// Содержимое балуна.
+				balloonContent: "<div style=\"margin-bottom: 10px;\"><strong>Стоимость доставки: 300 р.</strong></div>\nм. ГП, Ул. Тисовая, 4</br>тел. +7(123)456-789</br>Часы работы: пн, вт, ср, чт, вс с 09:00 до 00:00 пт и сб с 09:00 до 02:00</br>Служба доставки: +7(123)456-789"
+			}
+		}, {
+			"fill": "#ffd21e",
+        "fill-opacity": 0.5,
+        "stroke": "#b3b3b3",
+        "stroke-width": "0",
+        "stroke-opacity": 0
+		});
+		myMap.geoObjects.add(zona5GeoObject);
+		
+		
+		// Слушаем клик на карте.
+		myMap.events.add('click', function (e) {
+			actionClick(e);
+		});
+		// И по бублику
+		a107GeoObject.events.add('click', function (e) {
+			actionClick(e);
+		});
+		
+		// и переопределяем по geocode
+		element = document.querySelector("#ym-address-calc");
+		element.onclick = function(e) {
+			var addr = document.querySelector("#ym-address").value;
+			if(addr) {
+			
+				console.log(addr);
+			
+				ymaps.geocode(addr).then(function (res) {
+					var firstGeoObject = res.geoObjects.get(0),
+					// Координаты геообъекта.
+					coords = firstGeoObject.geometry.getCoordinates(),
+					// Область видимости геообъекта.
+					bounds = firstGeoObject.properties.get('boundedBy');
+					
+					// Если метка уже создана – просто передвигаем ее.
+					if (myPlacemark) {
+						myPlacemark.geometry.setCoordinates(coords);
+					}
+					// Если нет – создаем.
+					else {
+						myPlacemark = createPlacemark(coords);
+						myMap.geoObjects.add(myPlacemark);
+						// Слушаем событие окончания перетаскивания на метке.
+						myPlacemark.events.add('dragend', function () {
+							getAddress(myPlacemark.geometry.getCoordinates());
+						});
+					}
+					getAddress(coords);
+						
+				});
+				
+			}
+		};
+		
+		
+		// Обработка события по клику
+		function actionClick(e) {
+			var coords = e.get('coords');
+				// Если метка уже создана – просто передвигаем ее.
+				if (myPlacemark) {
+					myPlacemark.geometry.setCoordinates(coords);
+				}
+				// Если нет – создаем.
+				else {
+					myPlacemark = createPlacemark(coords);
+					myMap.geoObjects.add(myPlacemark);
+					// Слушаем событие окончания перетаскивания на метке.
+					myPlacemark.events.add('dragend', function () {
+						getAddress(myPlacemark.geometry.getCoordinates());
+					});
+				}
+				getAddress(coords);
+		}
+
+		// Создание метки.
+		function createPlacemark(coords) {
+			return new ymaps.Placemark(coords, {
+				iconCaption: 'Доставка'
+			}, {
+				preset: 'islands#violetDotIconWithCaption',
+				draggable: true
+			});
+		}
+
+		// Определяем адрес по координатам (обратное геокодирование).
+		function getAddress(coords) {
+			myPlacemark.properties.set('iconCaption', 'Доставка');
+			findClosestObjects(myPlacemark);
+			
+			
+			/**/
+		};
+		
+		
+		
+		function findClosestObjects(myPlacemark){
+			var point = myPlacemark, closestPoint;
+		    
+			closestPoint = mkadGeoObject.geometry.getClosest(point);
+		
+			normalVec = new ymaps.Polyline([        
+				mkadGeoObject.geometry.getClosest(myPlacemark.geometry.getCoordinates()).position,        
+				myPlacemark.geometry.getCoordinates()
+			]);
+			
+			var d = ymaps.coordSystem.geo.getDistance(
+				mkadGeoObject.geometry.getClosest(myPlacemark.geometry.getCoordinates()).position,
+				myPlacemark.geometry.getCoordinates()
+			);
+			
+			// Визуализация путей.
+			//myMap.geoObjects.add(normalVec);
+			
+			
+			var in_poly = a107GeoObject.geometry.contains(myPlacemark.geometry.getCoordinates());
+			var in_poly_mkad = mkadGeoObject.geometry.contains(myPlacemark.geometry.getCoordinates());
+			
+			if(in_poly) {
+				myPlacemark.properties.set('iconCaption', "Доставка: "+(Math.round(d / 1000) * rub_km) + "руб.");
+				//console.log( Math.round(d / 1000) + "км", in_poly,(Math.round(d / 1000) * rub_km) + "руб." );
+			} else {
+				if(in_poly_mkad) {
+					//console.log("Доставка по Москве в пределах МКАД<br> бесплатно от 3000 рублей");
+					myPlacemark.properties.set('iconCaption', 'Бесплатно от 3000 руб.');
+				} else {
+					//console.log("Доставка не осуществляется.");
+					myPlacemark.properties.set('iconCaption', 'Стоимость доставки уточняйте у менеджера');
+				}
+			}
+		}
+		
+		
+		
+	}
+</script>
